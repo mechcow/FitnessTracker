@@ -11,10 +11,12 @@ import {
   TouchableHighlight,
   AsyncStorage,
   ListView,
-  ScrollView
+  ScrollView,
+  Dimensions
 } from 'react-native';
 
 import t from 'tcomb-form-native'
+import Camera from 'react-native-camera';
 
 var Form = t.form.Form;
 
@@ -50,7 +52,16 @@ class FitnessTracker extends React.Component {
   constructor(props) {
     super(props);
     this.onPress = this.onPress.bind(this);
-    this.state = { goals: null };
+    this.state = { goals: null,
+                   camera: {
+//                    aspect: Camera.constants.Aspect.fill,
+//                    captureTarget: Camera.constants.CaptureTarget.cameraRoll,
+                     type: Camera.constants.Type.back
+//                     orientation: Camera.constants.Orientation.auto,
+//                     flashMode: Camera.constants.FlashMode.auto,
+                   },
+                   isRecording: false
+                 };
   }
 
   componentDidMount() {
@@ -66,10 +77,10 @@ class FitnessTracker extends React.Component {
     }
   }
 
-  _setGoals = async (goals) => {
-    this.setState({goals})
+  _setGoals = async (newGoals) => {
+    this.setState({goals : newGoals})
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({goals}));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({newGoals}));
       console.log("Saved goals")
     } catch (error) {
       console.log("AsyncStorage setItem error: ", error)
@@ -85,6 +96,8 @@ class FitnessTracker extends React.Component {
       }
     } catch (error) {
       console.log("AsyncStorage error: ", error);
+      AsyncStorage.setItem(STORAGE_KEY, null);
+      //this.setState({goals:null});
     }
   };
 
@@ -100,6 +113,16 @@ class FitnessTracker extends React.Component {
             dataSource={ ds.cloneWithRows(this.state.goals) }
             renderRow={ (goal) => <Text>{goal.goal}: {goal.metric} {goal.metricType}</Text> }
           />
+          <Camera
+            ref={(cam) => {
+              this.camera = cam;
+            }}
+            style={styles.preview}
+            aspect={Camera.constants.Aspect.fill}
+            type={this.state.camera.type}>
+            <Text style={styles.capture} onPress={this.takePicture.bind(this)}>[CAPTURE]</Text>
+            <Text style={styles.capture} onPress={this.switchType.bind(this)}>[SWITCH CAMERA]</Text>
+           </Camera>
         </View>
       );
     } else {
@@ -121,6 +144,30 @@ class FitnessTracker extends React.Component {
         </View>
       );
     }
+  }
+
+  takePicture() {
+    this.camera.capture()
+      .then((data) => console.log(data))
+      .catch(err => console.error(err));
+  }
+
+  switchType = () => {
+    let newType;
+    const { back, front } = Camera.constants.Type;
+
+    if (this.state.camera.type === back) {
+      newType = front;
+    } else if (this.state.camera.type === front) {
+      newType = back;
+    }
+
+    this.setState({
+      camera: {
+        ...this.state.camera,
+        type: newType,
+      },
+    });
   }
 }
 
@@ -155,6 +202,21 @@ var styles = StyleSheet.create({
   listview: {
     flex: 1,
     height: 200
+  },
+  preview: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    height: (Dimensions.get('window').height - 300),
+    width: (Dimensions.get('window').width - 50)
+  },
+  capture: {
+    flex: 0,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    color: '#000',
+    padding: 10,
+    margin: 40
   }
 });
 
