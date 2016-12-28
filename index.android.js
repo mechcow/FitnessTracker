@@ -11,6 +11,7 @@ import {
   TouchableHighlight,
   AsyncStorage,
   ListView,
+  ScrollView
 } from 'react-native';
 
 import t from 'tcomb-form-native'
@@ -95,6 +96,7 @@ class FitnessTracker extends React.Component {
         <View style={styles.container}>
           <Text style={styles.title}>FitnessTracker: Goals Found</Text>
           <ListView
+            style={styles.listview}
             dataSource={ ds.cloneWithRows(this.state.goals) }
             renderRow={ (goal) => <Text>{goal.goal}: {goal.metric} {goal.metricType}</Text> }
           />
@@ -106,12 +108,13 @@ class FitnessTracker extends React.Component {
       return (
         <View style={styles.container}>
           <Text style={styles.title}>Welcome to FitnessTracker</Text>
-
-          <Form
-            ref="form"
-            type={Goals}
-            options={options}
-          />
+          <ScrollView>
+            <Form
+              ref="form"
+              type={Goals}
+              options={options}
+            />
+          </ScrollView>
           <TouchableHighlight style={styles.button} onPress={this.onPress} underlayColor='#99d9f4'>
             <Text style={styles.buttonText}>Save</Text>
           </TouchableHighlight>
@@ -127,6 +130,7 @@ var styles = StyleSheet.create({
     marginTop: 50,
     padding: 20,
     backgroundColor: '#ffffff',
+    flex: 1
   },
   title: {
     fontSize: 30,
@@ -147,6 +151,10 @@ var styles = StyleSheet.create({
     marginBottom: 10,
     alignSelf: 'stretch',
     justifyContent: 'center'
+  },
+  listview: {
+    flex: 1,
+    height: 200
   }
 });
 
