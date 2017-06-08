@@ -107,7 +107,7 @@ class FitnessTracker extends React.Component {
       const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
       return(
         <View style={styles.container}>
-          <Text style={styles.title}>FitnessTracker: Goals Found</Text>
+          <Text style={styles.title}>FitnessTracker: Take your first photo!</Text>
           <ListView
             style={styles.listview}
             dataSource={ ds.cloneWithRows(this.state.goals) }
@@ -120,14 +120,12 @@ class FitnessTracker extends React.Component {
             style={styles.preview}
             aspect={Camera.constants.Aspect.fill}
             type={this.state.camera.type}>
-            <Text style={styles.capture} onPress={this.takePicture.bind(this)}>[CAPTURE]</Text>
-            <Text style={styles.capture} onPress={this.switchType.bind(this)}>[SWITCH CAMERA]</Text>
+            <Text style={styles.captureBtn} onPress={this.takePicture.bind(this)}>[CAPTURE]</Text>
+            <Text style={styles.switchBtn} onPress={this.switchType.bind(this)}>[SWITCH]</Text>
            </Camera>
         </View>
       );
     } else {
-
-
       return (
         <View style={styles.container}>
           <Text style={styles.title}>Welcome to FitnessTracker</Text>
@@ -147,7 +145,7 @@ class FitnessTracker extends React.Component {
   }
 
   takePicture() {
-    this.camera.capture()
+    return this.camera.capture()
       .then((data) => console.log(data))
       .catch(err => console.error(err));
   }
@@ -205,18 +203,27 @@ var styles = StyleSheet.create({
   },
   preview: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    height: (Dimensions.get('window').height - 300),
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    height: (Dimensions.get('window').height - 200),
     width: (Dimensions.get('window').width - 50)
   },
-  capture: {
+  captureBtn: {
     flex: 0,
     backgroundColor: '#fff',
     borderRadius: 5,
     color: '#000',
     padding: 10,
-    margin: 40
+    margin: 5,
+  },
+  switchBtn: {
+    flex: 0,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    color: '#000',
+    padding: 10,
+    margin: 5,
   }
 });
 
